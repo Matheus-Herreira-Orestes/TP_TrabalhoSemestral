@@ -1,3 +1,5 @@
+package src.erp;
+
 public class Contrato {
     public int id;
     public String descricao;
