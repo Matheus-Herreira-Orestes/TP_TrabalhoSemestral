@@ -1,10 +1,39 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class LoginPage {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginPage().criarTelaLogin());
     }
+
+    public boolean validarLogin(String usuario, String senha) {
+        String sql = "SELECT senha FROM usuario WHERE cpf = ?";
+
+        try (Connection conn = Conexao.conectar();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, usuario);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String senhaBanco = rs.getString("senha");
+                    return senha.equals(senhaBanco);
+                } else {
+                    return false;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao conectar ao banco: " + e.getMessage());
+            return false;
+        }
+    }
+
 
     public void criarTelaLogin() {
         JFrame frame = new JFrame("Login");
@@ -44,10 +73,9 @@ public class LoginPage {
             String usuario = userText.getText();
             String senha = new String(passwordText.getPassword());
 
-            //usuario de teste para ver comportamento da tela, retirar para integrar com o banco depois
-            if (usuario.equals("admin") && senha.equals("123")) {
+            if (validarLogin(usuario, senha)) {
                 frame.dispose(); // fecha a tela de login
-                new LandingPage().mostrar(); // abre nova tela
+                new LandingPage().mostrar();
             } else {
                 JOptionPane.showMessageDialog(frame, "Login ou senha inválidos");
             }
