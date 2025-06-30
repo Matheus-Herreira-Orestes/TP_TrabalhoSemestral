@@ -12,7 +12,7 @@ public class LoginPage {
     }
 
     public boolean validarLogin(String usuario, String senha) {
-        String sql = "SELECT senha FROM usuario WHERE cpf = ?";
+        String sql = "SELECT id_usuario, senha, perfil FROM usuario WHERE cpf = ?";
 
         try (Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -22,10 +22,15 @@ public class LoginPage {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String senhaBanco = rs.getString("senha");
-                    return senha.equals(senhaBanco);
-                } else {
-                    return false;
+                    if (senha.equals(senhaBanco)) {
+                        int id = rs.getInt("id_usuario");
+                        String tipo = rs.getString("perfil");
+                        Sessao.idUsuario = id;
+                        Sessao.isAdmin = "admin".equalsIgnoreCase(tipo);
+                        return true;
+                    }
                 }
+                return false;
             }
 
         } catch (SQLException e) {

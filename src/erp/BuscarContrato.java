@@ -94,7 +94,10 @@ public class BuscarContrato {
 
         Integer id = idStr.isEmpty() ? null : Integer.parseInt(idStr);
 
-        List<Contrato> resultados = ContratoDAO.buscarPorFiltros(empresa, id, descricao, dtInicio, dtFim);
+        List<Contrato> resultados;
+        
+        resultados = ContratoDAO.buscarPorFiltros(empresa, id, descricao, dtInicio, dtFim);
+        
         tableModel.setDados(resultados);
     }
 
@@ -108,7 +111,10 @@ public class BuscarContrato {
     }
 
     private void carregarTodos() {
-        List<Contrato> todos = ContratoDAO.buscarTodos();
+        List<Contrato> todos;
+        
+        todos = ContratoDAO.buscarTodos();
+        
         tableModel.setDados(todos);
     }
 

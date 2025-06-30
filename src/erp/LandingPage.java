@@ -6,7 +6,7 @@ import javax.swing.*;
 
 // PLACEHOLDER DA LANDING PAGe
 public class LandingPage {
-   private boolean isAdmin = true;
+   private boolean isAdmin = Sessao.isAdmin;
 
     public void mostrar() {
         JFrame frame = new JFrame("Tela Inicial");
@@ -37,14 +37,14 @@ public class LandingPage {
                 new TelaGerenciamento().mostrar("Usuários");
             });
             botoesPanel.add(btnUsuarios);
-
-            JButton btnEmpresas = new JButton("Gerenciar Empresas");
-            btnEmpresas.addActionListener(e -> {
-                frame.dispose();
-                new TelaGerenciamento().mostrar("Empresas");
-            });
-            botoesPanel.add(btnEmpresas);
         }
+
+        JButton btnEmpresas = new JButton("Gerenciar Empresas");
+        btnEmpresas.addActionListener(e -> {
+            frame.dispose();
+            new TelaGerenciamento().mostrar("Empresas");
+        });
+        botoesPanel.add(btnEmpresas);
 
         JButton btnInserir = new JButton("Novo Contrato");
         btnInserir.addActionListener(e -> {
