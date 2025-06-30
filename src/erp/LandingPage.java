@@ -1,8 +1,8 @@
 package src.erp;
-import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import javax.swing.*;
 
 // PLACEHOLDER DA LANDING PAGe
 public class LandingPage {
@@ -46,7 +46,12 @@ public class LandingPage {
             botoesPanel.add(btnEmpresas);
         }
 
-        botoesPanel.add(new JButton("Inserir"));
+        JButton btnInserir = new JButton("Novo Contrato");
+        btnInserir.addActionListener(e -> {
+            new ContratoForm(frame, "inserir");
+        });
+        botoesPanel.add(btnInserir);
+        
         botoesPanel.add(new JButton("Buscar"));
 
         mainPanel.add(botoesPanel, BorderLayout.SOUTH);
