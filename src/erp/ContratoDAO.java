@@ -1,12 +1,130 @@
 package src.erp;
+
+import java.math.BigDecimal;
 import java.sql.*;
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class ContratoDAO {
+
+    public static List<Contrato> buscarTodos() {
+        List<Contrato> contratos = new ArrayList<>();
+
+        String sql = """
+            SELECT 
+            c.id_contrato, 
+            c.descricao, 
+            e.razao AS empresa, 
+            c.dt_inicio, 
+            COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
+            c.valor_contrato
+            FROM contrato c
+            JOIN empresa e ON c.id_empresa = e.id_empresa
+            LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
+            ORDER BY c.dt_inicio
+        """;
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                contratos.add(contratoFromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return contratos;
+    }
+
+    public static List<Contrato> buscarPorFiltros(String empresa, Integer idContrato, String descricao, String dtInicio, String dtFim) {
+        List<Contrato> contratos = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT c.id_contrato, c.descricao, e.razao AS empresa, c.dt_inicio, 
+                   COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
+                   c.valor_contrato
+            FROM contrato c
+            JOIN empresa e ON c.id_empresa = e.id_empresa
+            LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
+            WHERE 1=1
+        """);
+
+        List<Object> parametros = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        if (empresa != null && !empresa.isBlank()) {
+            sql.append(" AND e.razao ILIKE ?");
+            parametros.add("%" + empresa + "%");
+        }
+        if (idContrato != null) {
+            sql.append(" AND c.id_contrato = ?");
+            parametros.add(idContrato);
+        }
+        if (descricao != null && !descricao.isBlank()) {
+            sql.append(" AND c.descricao ILIKE ?");
+            parametros.add("%" + descricao + "%");
+        }
+        if (dtInicio != null && !dtInicio.isBlank()) {
+            try {
+                LocalDate dataInicio = LocalDate.parse(dtInicio, formatter);
+                sql.append(" AND c.dt_inicio >= ?");
+                parametros.add(Date.valueOf(dataInicio));
+            } catch (DateTimeParseException e) {
+                System.err.println("Data início inválida: " + dtInicio);
+            }
+        }
+        if (dtFim != null && !dtFim.isBlank()) {
+            try {
+                LocalDate dataFim = LocalDate.parse(dtFim, formatter);
+                sql.append(" AND COALESCE(a.novo_dt_fim, c.dt_fim) <= ?");
+                parametros.add(Date.valueOf(dataFim));
+            } catch (DateTimeParseException e) {
+                System.err.println("Data fim inválida: " + dtFim);
+            }
+        }
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < parametros.size(); i++) {
+                stmt.setObject(i + 1, parametros.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                contratos.add(contratoFromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return contratos;
+    }
+
+    private static Contrato contratoFromResultSet(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id_contrato");
+        String descricao = rs.getString("descricao");
+        String empresa = rs.getString("empresa");
+        Date dtInicio = rs.getDate("dt_inicio");
+        Date dtFim = rs.getDate("dt_fim");
+        BigDecimal valor = rs.getBigDecimal("valor_contrato");
+
+        return new Contrato(id, descricao, empresa, dtInicio, dtFim, valor);
+    }
+
+
+    // Mantém seu método anterior para a tela inicial
     public static Map<String, List<Contrato>> buscarContratosAgrupadosPorVencimento() {
         Map<String, List<Contrato>> grupos = new HashMap<>();
         grupos.put("vigente", new ArrayList<>());
@@ -17,15 +135,10 @@ public class ContratoDAO {
             SELECT 
                 c.id_contrato,
                 c.descricao,
-                COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim
+                COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
+                c.valor_contrato
             FROM contrato c
-            LEFT JOIN LATERAL (
-                SELECT novo_dt_fim
-                FROM aditamento a
-                WHERE a.id_contrato = c.id_contrato AND novo_dt_fim IS NOT NULL
-                ORDER BY dt_aditamento DESC
-                LIMIT 1
-            ) a ON true
+            LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
         """;
 
         try (Connection conn = Conexao.conectar();
@@ -42,7 +155,6 @@ public class ContratoDAO {
                 int anoFim = dtFim.toLocalDate().getYear();
 
                 Contrato contrato = new Contrato(id, descricao, dtFim);
-
                 if (anoFim == anoAtual) {
                     grupos.get("vigente").add(contrato);
                 } else if (anoFim == anoAtual + 1) {

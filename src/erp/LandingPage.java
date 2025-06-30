@@ -48,11 +48,15 @@ public class LandingPage {
 
         JButton btnInserir = new JButton("Novo Contrato");
         btnInserir.addActionListener(e -> {
-            new ContratoForm(frame, "inserir");
+            new ContratoForm(frame, "inserir", null);
         });
         botoesPanel.add(btnInserir);
         
-        botoesPanel.add(new JButton("Buscar"));
+        JButton btnBuscar = new JButton("Buscar");
+        btnBuscar.addActionListener(e -> {
+            new BuscarContrato().mostrar();
+        });
+        botoesPanel.add(btnBuscar);
 
         mainPanel.add(botoesPanel, BorderLayout.SOUTH);
 
