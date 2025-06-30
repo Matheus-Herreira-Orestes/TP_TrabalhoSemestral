@@ -34,12 +34,12 @@ public class BuscarContrato {
 
         painelFiltros.add(new JLabel("Empresa:"));
         painelFiltros.add(tfEmpresa);
-        painelFiltros.add(new JLabel("Dt início:"));
+        painelFiltros.add(new JLabel("Data início:"));
         painelFiltros.add(tfDtInicio);
 
         painelFiltros.add(new JLabel("ID Contrato:"));
         painelFiltros.add(tfIdContrato);
-        painelFiltros.add(new JLabel("Dt fim:"));
+        painelFiltros.add(new JLabel("Data fim:"));
         painelFiltros.add(tfDtFim);
 
         painelFiltros.add(new JLabel("Descrição:"));
