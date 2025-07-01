@@ -23,7 +23,7 @@ public class GerenciarAditamentos {
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        String[] colunas = { "ID", "Contrato", "Descrição ADT", "Novo valor", "Nova data Início", "Nova data Fim" };
+        String[] colunas = { "ID", "Contrato", "Observação", "Novo Valor", "Data Início", "Data Fim" };
         model = new DefaultTableModel(colunas, 0);
         tabela = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(tabela);
@@ -32,9 +32,10 @@ public class GerenciarAditamentos {
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        JButton btnNovo = new JButton("Novo Aditamento");
-        JButton btnAlterar = new JButton("Alterar Aditamento");
-        JButton btnExcluir = new JButton("Excluir Aditamento");
+        JButton btnNovo = new JButton("Novo");
+        JButton btnAlterar = new JButton("Alterar");
+        JButton btnExcluir = new JButton("Excluir");
+        JButton btnDetalhar = new JButton("Detalhar");
 
         btnNovo.addActionListener(e -> {
             new AditamentoForm(dialog, "inserir", null, idContrato);
@@ -65,10 +66,23 @@ public class GerenciarAditamentos {
             carregarDados();
         });
 
+        btnDetalhar.addActionListener(e -> {
+            int linha = tabela.getSelectedRow();
+            if (linha == -1) {
+                JOptionPane.showMessageDialog(dialog, "Selecione um aditamento.");
+                return;
+            }
+            int idAditamento = (int) model.getValueAt(linha, 0);
+            Aditamento selecionado = AditamentoDAO.buscarPorId(idAditamento);
+            new AditamentoForm(dialog, "detalhar", selecionado, idContrato);
+            carregarDados();
+        });
+
 
         painelBotoes.add(btnNovo);
         painelBotoes.add(btnAlterar);
         painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnDetalhar);
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
 

@@ -12,7 +12,7 @@ import javax.swing.text.MaskFormatter;
 public class AditamentoForm {
     private JDialog dialog;
     private JTextField txtIdAditamento;
-    private JTextField txtDescricao;
+    private JTextArea txtObservacao;
     private JTextField txtNovoValor;
     private JFormattedTextField txtNovaDtInicio;
     private JFormattedTextField txtNovaDtFim;
@@ -49,28 +49,11 @@ public class AditamentoForm {
 
         gbc.gridwidth = 1;
 
-        // ID Aditamento (somente para alterar, excluir, detalhar)
         if (!modo.equals("inserir")) {
-            gbc.gridx = 0;
-            gbc.gridy = linha;
-            panel.add(new JLabel("ID Aditamento:"), gbc);
-
             txtIdAditamento = new JTextField(10);
             txtIdAditamento.setEnabled(false);
-            gbc.gridx = 1;
-            panel.add(txtIdAditamento, gbc);
-            linha++;
         }
 
-        // Descrição
-        gbc.gridx = 0;
-        gbc.gridy = linha;
-        panel.add(new JLabel("Descrição:"), gbc);
-
-        txtDescricao = new JTextField(20);
-        gbc.gridx = 1;
-        panel.add(txtDescricao, gbc);
-        linha++;
 
         // Novo Valor
         gbc.gridx = 0;
@@ -100,6 +83,20 @@ public class AditamentoForm {
         txtNovaDtFim = criarCampoDataFormatado();
         gbc.gridx = 1;
         panel.add(txtNovaDtFim, gbc);
+        linha++;
+
+        // Observação
+        gbc.gridx = 0;
+        gbc.gridy = linha;
+        gbc.anchor = GridBagConstraints.NORTH;
+        panel.add(new JLabel("Observação:"), gbc);
+
+        txtObservacao = new JTextArea(5, 20);
+        txtObservacao.setLineWrap(true);
+        txtObservacao.setWrapStyleWord(true);
+        JScrollPane scrollObs = new JScrollPane(txtObservacao);
+        gbc.gridx = 1;
+        panel.add(scrollObs, gbc);
         linha++;
 
         // Botões
@@ -135,7 +132,7 @@ public class AditamentoForm {
 
     private void executarAcao(ActionEvent e) {
         try (var conn = Conexao.conectar()) {
-            String descricao = txtDescricao.getText().trim();
+            String observacao = txtObservacao.getText().trim();
 
             BigDecimal novoValor = null;
             if (!txtNovoValor.getText().trim().isEmpty()) {
@@ -150,7 +147,7 @@ public class AditamentoForm {
                     String sql = "INSERT INTO aditamento (id_contrato, observacoes, novo_valor, novo_dt_inicio, novo_dt_fim) VALUES (?, ?, ?, ?, ?)";
                     try (var stmt = conn.prepareStatement(sql)) {
                         stmt.setInt(1, idContrato);
-                        stmt.setString(2, descricao);
+                        stmt.setString(2, observacao);
                         if (novoValor != null)
                             stmt.setBigDecimal(3, novoValor);
                         else
@@ -175,7 +172,7 @@ public class AditamentoForm {
                     int id = Integer.parseInt(txtIdAditamento.getText());
                     String sql = "UPDATE aditamento SET observacoes = ?, novo_valor = ?, novo_dt_inicio = ?, novo_dt_fim = ? WHERE id_aditamento = ?";
                     try (var stmt = conn.prepareStatement(sql)) {
-                        stmt.setString(1, descricao);
+                        stmt.setString(1, observacao);
 
                         if (novoValor != null)
                             stmt.setBigDecimal(2, novoValor);
@@ -225,7 +222,7 @@ public class AditamentoForm {
 
     private void preencherCamposComAditamento() {
         txtIdAditamento.setText(String.valueOf(aditamentoSelecionado.id));
-        txtDescricao.setText(aditamentoSelecionado.observacoes != null ? aditamentoSelecionado.observacoes : "");
+        txtObservacao.setText(aditamentoSelecionado.observacoes != null ? aditamentoSelecionado.observacoes : "");
         txtNovoValor.setText(aditamentoSelecionado.novoValor != null ? aditamentoSelecionado.novoValor.toString() : "");
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         txtNovaDtInicio.setText(aditamentoSelecionado.novoDtInicio != null ? sdf.format(aditamentoSelecionado.novoDtInicio) : "");
@@ -233,7 +230,7 @@ public class AditamentoForm {
     }
 
     private void desabilitarEdicao() {
-        if (txtDescricao != null) txtDescricao.setEditable(false);
+        if (txtObservacao != null) txtObservacao.setEditable(false);
         if (txtNovoValor != null) txtNovoValor.setEditable(false);
         if (txtNovaDtInicio != null) txtNovaDtInicio.setEditable(false);
         if (txtNovaDtFim != null) txtNovaDtFim.setEditable(false);
