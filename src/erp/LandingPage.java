@@ -34,7 +34,7 @@ public class LandingPage {
             JButton btnUsuarios = new JButton("Gerenciar Usuários");
             btnUsuarios.addActionListener(e -> {
                 frame.dispose(); // fecha a tela atual
-                new TelaGerenciamento().mostrar("Usuários");
+                new GerenciarUsuario().mostrar();
             });
             botoesPanel.add(btnUsuarios);
         }
