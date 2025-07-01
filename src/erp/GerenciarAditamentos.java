@@ -1,39 +1,30 @@
 package src.erp;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class GerenciarAditamentos {
-    public void mostrar() {
-        JFrame frame = new JFrame("Aditamentos");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(800, 400);
-        frame.setLocationRelativeTo(null);
+    private JDialog dialog;
+    private JTable tabela;
+    private int idContrato;
+    private DefaultTableModel model;
+
+    public void mostrar(Window parent, int idContrato) {
+        this.idContrato = idContrato;
+
+        dialog = new JDialog(parent, "Aditamentos do Contrato #" + idContrato, Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setSize(800, 400);
+        dialog.setLocationRelativeTo(parent);
 
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         String[] colunas = { "ID", "Contrato", "Descrição ADT", "Novo valor", "Nova data Início", "Nova data Fim" };
-
-        List<Aditamento> aditamentos = AditamentoDAO.buscarADT();
-        Object[][] dados = new Object[aditamentos.size()][colunas.length];
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
-        for (int i = 0; i < aditamentos.size(); i++) {
-            Aditamento a = aditamentos.get(i);
-            dados[i][0] = a.id;
-            dados[i][1] = a.idContrato;
-            dados[i][2] = a.observacoes != null ? a.observacoes : "";
-            dados[i][3] = a.novoValor != null ? a.novoValor : "INALTERADO";
-            dados[i][4] = a.novoDtInicio != null ? sdf.format(a.novoDtInicio) : "INALTERADO";
-            dados[i][5] = a.novoDtFim != null ? sdf.format(a.novoDtFim) : "INALTERADO";
-        }
-
-        JTable tabela = new JTable(new DefaultTableModel(dados, colunas));
+        model = new DefaultTableModel(colunas, 0);
+        tabela = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(tabela);
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);
 
@@ -48,11 +39,28 @@ public class GerenciarAditamentos {
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
 
-        frame.setContentPane(painelPrincipal);
-        frame.setVisible(true);
+        dialog.setContentPane(painelPrincipal);
+
+        carregarDados();
+
+        dialog.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GerenciarAditamentos().mostrar());
+    private void carregarDados() {
+        model.setRowCount(0); // limpa a tabela
+        List<Aditamento> aditamentos = AditamentoDAO.buscarADTPorContrato(idContrato);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        for (Aditamento a : aditamentos) {
+            model.addRow(new Object[] {
+                a.id,
+                a.idContrato,
+                a.observacoes != null ? a.observacoes : "",
+                a.novoValor != null ? a.novoValor : "INALTERADO",
+                a.novoDtInicio != null ? sdf.format(a.novoDtInicio) : "INALTERADO",
+                a.novoDtFim != null ? sdf.format(a.novoDtFim) : "INALTERADO"
+            });
+        }
     }
 }

@@ -7,6 +7,7 @@ import javax.swing.*;
 // PLACEHOLDER DA LANDING PAGe
 public class LandingPage {
    private boolean isAdmin = Sessao.isAdmin;
+   JPanel colunasPanel;
 
     public void mostrar() {
         JFrame frame = new JFrame("Tela Inicial");
@@ -22,13 +23,17 @@ public class LandingPage {
         titulo.setFont(new Font("Arial", Font.BOLD, 18));
         mainPanel.add(titulo, BorderLayout.NORTH);
 
-        JPanel colunasPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+        colunasPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         colunasPanel.add(criarColuna("Ano vigente", grupos.get("vigente")));
         colunasPanel.add(criarColuna("Próximo ano", grupos.get("proximo")));
         colunasPanel.add(criarColuna("> 1 ano", grupos.get("futuro")));
         mainPanel.add(colunasPanel, BorderLayout.CENTER);
 
         JPanel botoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        JButton btnAtualizar = new JButton("Atualizar");
+        btnAtualizar.addActionListener(e -> atualizarTabelas());
+        botoesPanel.add(btnAtualizar);
 
         if (isAdmin) {
             JButton btnUsuarios = new JButton("Gerenciar Usuários");
@@ -87,5 +92,15 @@ public class LandingPage {
 
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
+    }
+
+    private void atualizarTabelas() {
+        colunasPanel.removeAll();
+        Map<String, List<Contrato>> grupos = ContratoDAO.buscarContratosAgrupadosPorVencimento();
+        colunasPanel.add(criarColuna("Ano vigente", grupos.get("vigente")));
+        colunasPanel.add(criarColuna("Próximo ano", grupos.get("proximo")));
+        colunasPanel.add(criarColuna("> 1 ano", grupos.get("futuro")));
+        colunasPanel.revalidate();
+        colunasPanel.repaint();
     }
 }

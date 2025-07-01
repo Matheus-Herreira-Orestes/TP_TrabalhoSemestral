@@ -9,6 +9,7 @@ public class Contrato {
     public java.sql.Date dtInicio;
     public java.sql.Date dtFim;
     public BigDecimal valorContrato;
+    public int idFiscal;
 
     public Contrato(int id, String descricao, java.sql.Date dtFim) {
         this.id = id;
@@ -23,6 +24,14 @@ public class Contrato {
         this.dtInicio = dtInicio;
         this.dtFim = dtFim;
         this.valorContrato = valorContrato;
+    }
+
+    public void setIdFiscal(int idFiscal) {
+        this.idFiscal = idFiscal;
+    }
+
+    public int getIdFiscal() {
+        return idFiscal;
     }
 
     @Override

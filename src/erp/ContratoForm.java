@@ -17,6 +17,7 @@ public class ContratoForm {
     private JTextArea txtDescricao;
     private String modo; // "inserir", "alterar", "excluir", "detalhar"
     private Contrato contratoSelecionado;
+    private JComboBox<Usuario> cbFiscal; // apenas se admin
 
     public ContratoForm(JFrame parent, String modo, Contrato contratoSelecionado) {
         this.modo = modo.toLowerCase();
@@ -34,6 +35,7 @@ public class ContratoForm {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        int linha = 1;
 
         JLabel lblTitulo = new JLabel(capitalize(modo) + " Contrato", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 18));
@@ -46,62 +48,78 @@ public class ContratoForm {
 
         // Empresa (JComboBox)
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = linha;
         panel.add(new JLabel("Empresa:"), gbc);
 
         cbEmpresa = new JComboBox<>();
         carregarEmpresas();
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = linha++;
         gbc.gridwidth = 3;
         panel.add(cbEmpresa, gbc);
 
         gbc.gridwidth = 1;
 
+        // Combo box de seleção de fiscal se for admin
+        if (Sessao.isAdmin) {
+            gbc.gridx = 0;
+            gbc.gridy = linha++;
+            panel.add(new JLabel("Fiscal responsável:"), gbc);
+
+            cbFiscal = new JComboBox<>();
+            carregarUsuariosFiscais();
+
+            gbc.gridx = 1;
+            gbc.gridwidth = 3;
+            panel.add(cbFiscal, gbc);
+            gbc.gridwidth = 1;
+        }
+
+
         // ID Contrato
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = linha;
         panel.add(new JLabel("Id do contrato:"), gbc);
 
         txtIdContrato = new JTextField(15);
         txtIdContrato.setEnabled(false);
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = linha;
         panel.add(txtIdContrato, gbc);
 
         // Valor Total
         gbc.gridx = 2;
-        gbc.gridy = 2;
+        gbc.gridy = linha;
         panel.add(new JLabel("Valor Total:"), gbc);
 
         txtValor = new JTextField(15);
         gbc.gridx = 3;
-        gbc.gridy = 2;
+        gbc.gridy = linha++;
         panel.add(txtValor, gbc);
 
         // Data Início
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = linha;
         panel.add(new JLabel("Data início:"), gbc);
 
         txtDtInicio = criarCampoDataFormatado();
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = linha;
         panel.add(txtDtInicio, gbc);
 
         // Data Fim
         gbc.gridx = 2;
-        gbc.gridy = 3;
+        gbc.gridy = linha;
         panel.add(new JLabel("Data fim:"), gbc);
 
         txtDtFim = criarCampoDataFormatado();
         gbc.gridx = 3;
-        gbc.gridy = 3;
+        gbc.gridy = linha++;
         panel.add(txtDtFim, gbc);
 
         // Descrição
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = linha++;
         panel.add(new JLabel("Descrição:"), gbc);
 
         txtDescricao = new JTextArea(5, 30);
@@ -109,7 +127,7 @@ public class ContratoForm {
         txtDescricao.setWrapStyleWord(true);
         JScrollPane scrollDescricao = new JScrollPane(txtDescricao);
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = linha++;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
@@ -117,7 +135,7 @@ public class ContratoForm {
         panel.add(scrollDescricao, gbc);
 
         // Botões
-        gbc.gridy = 6;
+        gbc.gridy = linha;
         gbc.gridwidth = 4;
         gbc.weighty = 0;
         gbc.fill = GridBagConstraints.NONE;
@@ -140,6 +158,7 @@ public class ContratoForm {
             preencherCamposComContrato();
             if (modo.equals("detalhar")) {
                 desabilitarEdicao();
+                btnAcao.setVisible(false);
             }
         }
 
@@ -182,7 +201,18 @@ public class ContratoForm {
                         stmt.setDate(3, dtInicio);
                         stmt.setDate(4, dtFim);
                         stmt.setString(5, descricao);
-                        stmt.setInt(6, 1); // ID do fiscal fixo por enquanto
+                        int idFiscal;
+                        if (!Sessao.isAdmin) {
+                            idFiscal = Sessao.idUsuario;
+                        } else {
+                            Usuario usuarioSelecionado = (Usuario) cbFiscal.getSelectedItem();
+                            if (usuarioSelecionado == null) {
+                                JOptionPane.showMessageDialog(dialog, "Selecione um fiscal válido.");
+                                return;
+                            }
+                            idFiscal = usuarioSelecionado.getId();
+                        }
+                        stmt.setInt(6, idFiscal);
                         stmt.executeUpdate();
                         JOptionPane.showMessageDialog(dialog, "Contrato inserido com sucesso!");
                         dialog.dispose();
@@ -190,19 +220,39 @@ public class ContratoForm {
                 }
                 case "alterar" -> {
                     int idContrato = Integer.parseInt(txtIdContrato.getText());
-                    String sql = "UPDATE contrato SET id_empresa = ?, valor_contrato = ?, dt_inicio = ?, dt_fim = ?, descricao = ? WHERE id_contrato = ?";
+
+                    String sql;
+                    if (Sessao.isAdmin) {
+                        sql = "UPDATE contrato SET id_empresa = ?, valor_contrato = ?, dt_inicio = ?, dt_fim = ?, descricao = ?, id_fiscal = ? WHERE id_contrato = ?";
+                    } else {
+                        sql = "UPDATE contrato SET id_empresa = ?, valor_contrato = ?, dt_inicio = ?, dt_fim = ?, descricao = ? WHERE id_contrato = ?";
+                    }
+
                     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                         stmt.setInt(1, idEmpresa);
                         stmt.setBigDecimal(2, valor);
                         stmt.setDate(3, dtInicio);
                         stmt.setDate(4, dtFim);
                         stmt.setString(5, descricao);
-                        stmt.setInt(6, idContrato);
+
+                        if (Sessao.isAdmin) {
+                            Usuario usuarioSelecionado = (Usuario) cbFiscal.getSelectedItem();
+                            if (usuarioSelecionado == null) {
+                                JOptionPane.showMessageDialog(dialog, "Selecione um fiscal válido.");
+                                return;
+                            }
+                            stmt.setInt(6, usuarioSelecionado.getId()); // fiscal
+                            stmt.setInt(7, idContrato);
+                        } else {
+                            stmt.setInt(6, idContrato);
+                        }
+
                         stmt.executeUpdate();
                         JOptionPane.showMessageDialog(dialog, "Contrato alterado com sucesso!");
                         dialog.dispose();
                     }
                 }
+
                 case "excluir" -> {
                     int idContrato = Integer.parseInt(txtIdContrato.getText());
                     int opcao = JOptionPane.showConfirmDialog(dialog, "Deseja realmente excluir o contrato?", "Confirmação", JOptionPane.YES_NO_OPTION);
@@ -299,6 +349,15 @@ public class ContratoForm {
             }
         }
         txtValor.setText(contratoSelecionado.valorContrato != null ? contratoSelecionado.valorContrato.toString() : "");
+        if (Sessao.isAdmin && cbFiscal != null) {
+            for (int i = 0; i < cbFiscal.getItemCount(); i++) {
+                Usuario u = cbFiscal.getItemAt(i);
+                if (u.getId() == contratoSelecionado.idFiscal) {
+                    cbFiscal.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void desabilitarEdicao() {
@@ -307,6 +366,7 @@ public class ContratoForm {
         txtValor.setEditable(false);
         txtDtInicio.setEditable(false);
         txtDtFim.setEditable(false);
+        if (cbFiscal != null) cbFiscal.setEnabled(false);
     }
 
     private Date parseData(String texto) throws ParseException {
@@ -315,4 +375,9 @@ public class ContratoForm {
         return new Date(utilDate.getTime());
     }
 
+    private void carregarUsuariosFiscais() {
+        for (Usuario u : UsuarioDAO.buscarTodos()) {
+            cbFiscal.addItem(u);
+        }
+    }
 }

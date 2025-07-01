@@ -44,4 +44,45 @@ public class AditamentoDAO {
 
         return aditamentos;
     }
+
+    public static List<Aditamento> buscarADTPorContrato(int idContrato) {
+        List<Aditamento> aditamentos = new ArrayList<>();
+
+        String sql = """
+            SELECT id_aditamento,
+                id_contrato,
+                dt_aditamento,
+                novo_valor,
+                novo_dt_inicio,
+                novo_dt_fim,
+                observacoes
+            FROM aditamento
+            WHERE id_contrato = ?
+        """;
+
+        try (Connection conn = Conexao.conectar();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idContrato);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id_aditamento");
+                Date dtAditamento = rs.getDate("dt_aditamento");
+                BigDecimal novoValor = rs.getBigDecimal("novo_valor");
+                Date novoDtInicio = rs.getDate("novo_dt_inicio");
+                Date novoDtFim = rs.getDate("novo_dt_fim");
+                String observacoes = rs.getString("observacoes");
+
+                Aditamento adt = new Aditamento(id, idContrato, dtAditamento, novoValor, novoDtInicio, novoDtFim, observacoes);
+                aditamentos.add(adt);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return aditamentos;
+    }
+
 }

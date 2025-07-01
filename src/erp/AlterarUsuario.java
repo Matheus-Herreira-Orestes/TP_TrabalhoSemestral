@@ -1,5 +1,8 @@
 package src.erp;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -9,9 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 
 public class AlterarUsuario {
     private int inserir;

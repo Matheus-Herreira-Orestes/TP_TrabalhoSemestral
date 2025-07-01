@@ -64,6 +64,8 @@ public class BuscarContrato {
 
         // Botões CRUD
         JPanel botoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        JButton btnVoltar = new JButton("Voltar");
+        botoesPanel.add(btnVoltar);
         JButton btnAditamentos = new JButton("Aditamentos");
         botoesPanel.add(btnAditamentos);
         JButton btnAlterar = new JButton("Alterar");
@@ -73,10 +75,23 @@ public class BuscarContrato {
         JButton btnDetalhar = new JButton("Detalhar");
         botoesPanel.add(btnDetalhar);
 
+        btnVoltar.addActionListener(e -> frame.dispose());
+
         btnAlterar.addActionListener(e -> abrirFormulario("alterar"));
         btnExcluir.addActionListener(e -> abrirFormulario("excluir"));
         btnDetalhar.addActionListener(e -> abrirFormulario("detalhar"));
-        btnAditamentos.addActionListener(e-> new GerenciarAditamentos().mostrar());
+        btnAditamentos.addActionListener(e -> {
+            int linha = tabela.getSelectedRow();
+            if (linha == -1) {
+                JOptionPane.showMessageDialog(null, "Selecione um contrato.");
+                return;
+            }
+
+            Contrato contrato = tableModel.getContratoAt(linha);
+            Window janelaPai = SwingUtilities.getWindowAncestor(tabela);
+            new GerenciarAditamentos().mostrar(janelaPai, contrato.id);
+        });
+
 
         
         painelPrincipal.add(botoesPanel, BorderLayout.SOUTH);
@@ -171,5 +186,6 @@ public class BuscarContrato {
 
         Contrato contrato = tableModel.getContratoAt(linha);
         new ContratoForm((JFrame) SwingUtilities.getWindowAncestor(tabela), modo, contrato);
+        carregarTodos();
     }
 }

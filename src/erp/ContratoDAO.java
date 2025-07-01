@@ -24,13 +24,13 @@ public class ContratoDAO {
                 e.razao AS empresa, 
                 c.dt_inicio, 
                 COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
-                c.valor_contrato
+                c.valor_contrato,
+                c.id_fiscal
             FROM contrato c
             JOIN empresa e ON c.id_empresa = e.id_empresa
             LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
         """);
 
-        // Se não for admin, adiciona cláusula WHERE
         boolean aplicarFiltro = !Sessao.isAdmin;
         if (aplicarFiltro) {
             sql.append(" WHERE c.id_fiscal = ?");
@@ -39,7 +39,6 @@ public class ContratoDAO {
         try (Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            // Se necessário, define o parâmetro
             if (aplicarFiltro) {
                 stmt.setInt(1, Sessao.idUsuario);
             }
@@ -66,7 +65,8 @@ public class ContratoDAO {
         StringBuilder sql = new StringBuilder("""
             SELECT c.id_contrato, c.descricao, e.razao AS empresa, c.dt_inicio, 
                 COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
-                c.valor_contrato
+                c.valor_contrato,
+                c.id_fiscal
             FROM contrato c
             JOIN empresa e ON c.id_empresa = e.id_empresa
             LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
@@ -75,7 +75,6 @@ public class ContratoDAO {
 
         List<Object> parametros = new ArrayList<>();
 
-        // Filtro para usuários fiscais
         if (!Sessao.isAdmin) {
             sql.append(" AND c.id_fiscal = ?");
             parametros.add(Sessao.idUsuario);
@@ -113,18 +112,15 @@ public class ContratoDAO {
             }
         }
 
-        // Executar a consulta
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            // Definir parâmetros da consulta
             for (int i = 0; i < parametros.size(); i++) {
                 stmt.setObject(i + 1, parametros.get(i));
             }
 
             ResultSet rs = stmt.executeQuery();
 
-            // Preencher a lista de contratos
             while (rs.next()) {
                 contratos.add(contratoFromResultSet(rs));
             }
@@ -144,11 +140,14 @@ public class ContratoDAO {
         Date dtInicio = rs.getDate("dt_inicio");
         Date dtFim = rs.getDate("dt_fim");
         BigDecimal valor = rs.getBigDecimal("valor_contrato");
+        int idFiscal = rs.getInt("id_fiscal");
 
-        return new Contrato(id, descricao, empresa, dtInicio, dtFim, valor);
+        Contrato contrato = new Contrato(id, descricao, empresa, dtInicio, dtFim, valor);
+        contrato.setIdFiscal(idFiscal);
+
+        return contrato;
     }
 
-    // Método para buscar contratos agrupados por vencimento
     public static Map<String, List<Contrato>> buscarContratosAgrupadosPorVencimento() {
         Map<String, List<Contrato>> grupos = new HashMap<>();
         grupos.put("vigente", new ArrayList<>());
@@ -166,7 +165,6 @@ public class ContratoDAO {
             LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
         """;
 
-        // Adiciona filtro para fiscais
         if (!Sessao.isAdmin) {
             sql += " WHERE c.id_fiscal = ?";
         }
@@ -174,9 +172,8 @@ public class ContratoDAO {
         try (Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Se não for admin, adiciona o id_fiscal como parâmetro
             if (!Sessao.isAdmin) {
-                stmt.setInt(1, Sessao.idUsuario); // Usa o ID do fiscal da sessão
+                stmt.setInt(1, Sessao.idUsuario);
             }
 
             try (ResultSet rs = stmt.executeQuery()) {
