@@ -21,18 +21,28 @@ public class ContratoDAO {
                 c.descricao, 
                 e.razao AS empresa, 
                 c.dt_inicio, 
-                COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
+                COALESCE(MAX(a.novo_dt_fim), c.dt_fim) AS dt_fim,
                 c.valor_contrato,
                 c.id_fiscal
             FROM contrato c
             JOIN empresa e ON c.id_empresa = e.id_empresa
             LEFT JOIN aditamento a ON a.id_contrato = c.id_contrato
+            GROUP BY 
+                c.id_contrato, 
+                c.descricao, 
+                e.razao, 
+                c.dt_inicio, 
+                c.dt_fim, 
+                c.valor_contrato,
+                c.id_fiscal
         """);
 
         boolean aplicarFiltro = !Sessao.isAdmin;
         if (aplicarFiltro) {
             sql.append(" WHERE c.id_fiscal = ?");
         }
+
+        sql.append(" ORDER BY c.id_contrato");
 
         try (Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
@@ -160,6 +170,8 @@ public class ContratoDAO {
         if (!Sessao.isAdmin) {
             sql += " WHERE c.id_fiscal = ?";
         }
+
+        sql += " ORDER BY dt_fim ASC";
 
         try (Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql)) {

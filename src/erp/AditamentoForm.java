@@ -119,6 +119,10 @@ public class AditamentoForm {
                 desabilitarEdicao();
                 btnConfirmar.setVisible(false);
             }
+            if (modo.equals("excluir"))
+            {
+                desabilitarEdicao();
+            }
         }
 
         dialog.setVisible(true);

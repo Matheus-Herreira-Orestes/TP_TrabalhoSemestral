@@ -25,17 +25,29 @@ public class GerenciarAditamentos {
 
         String[] colunas = { "ID", "Contrato", "Observação", "Novo Valor", "Data Início", "Data Fim" };
         model = new DefaultTableModel(colunas, 0);
-        tabela = new JTable(model);
+        tabela = new JTable(model)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         JScrollPane scrollPane = new JScrollPane(tabela);
         TableColumnModel columnModel = tabela.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        JButton btnVoltar = new JButton("Voltar");
         JButton btnNovo = new JButton("Novo");
         JButton btnAlterar = new JButton("Alterar");
         JButton btnExcluir = new JButton("Excluir");
         JButton btnDetalhar = new JButton("Detalhar");
+
+        btnVoltar.addActionListener(e -> {
+            dialog.dispose();
+        });
+
 
         btnNovo.addActionListener(e -> {
             new AditamentoForm(dialog, "inserir", null, idContrato);
@@ -78,7 +90,7 @@ public class GerenciarAditamentos {
             carregarDados();
         });
 
-
+        painelBotoes.add(btnVoltar);
         painelBotoes.add(btnNovo);
         painelBotoes.add(btnAlterar);
         painelBotoes.add(btnExcluir);

@@ -33,8 +33,8 @@ public class UsuarioForm {
         gbc.gridy = 0;
         gbc.weightx = 1.0;
 
-        Insets labelInsets = new Insets(6, 6, 2, 6); // menos espaço embaixo do label
-        Insets fieldInsets = new Insets(0, 6, 10, 6); // espaço maior abaixo do campo
+        Insets labelInsets = new Insets(6, 6, 2, 6);
+        Insets fieldInsets = new Insets(0, 6, 10, 6);
 
         gbc.insets = labelInsets;
         painelCampos.add(new JLabel("Nome:"), gbc);

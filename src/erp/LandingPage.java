@@ -83,7 +83,12 @@ public class LandingPage {
         }
 
 
-        JTable tabela = new JTable(dados, colunas);
+        JTable tabela = new JTable(dados, colunas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
         tabela.getColumnModel().getColumn(1).setPreferredWidth(200);
         tabela.getColumnModel().getColumn(2).setPreferredWidth(100);
