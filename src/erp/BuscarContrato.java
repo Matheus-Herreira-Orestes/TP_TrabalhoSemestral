@@ -64,7 +64,8 @@ public class BuscarContrato {
 
         // Botões CRUD
         JPanel botoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        botoesPanel.add(new JButton("Aditamentos"));
+        JButton btnAditamentos = new JButton("Aditamentos");
+        botoesPanel.add(btnAditamentos);
         JButton btnAlterar = new JButton("Alterar");
         botoesPanel.add(btnAlterar);
         JButton btnExcluir = new JButton("Excluir");
@@ -75,6 +76,7 @@ public class BuscarContrato {
         btnAlterar.addActionListener(e -> abrirFormulario("alterar"));
         btnExcluir.addActionListener(e -> abrirFormulario("excluir"));
         btnDetalhar.addActionListener(e -> abrirFormulario("detalhar"));
+        btnAditamentos.addActionListener(e-> new GerenciarAditamentos().mostrar());
 
         
         painelPrincipal.add(botoesPanel, BorderLayout.SOUTH);
