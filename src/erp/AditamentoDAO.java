@@ -85,4 +85,36 @@ public class AditamentoDAO {
         return aditamentos;
     }
 
+    public static Aditamento buscarPorId(int idAditamento) {
+        Aditamento aditamento = null;
+        String sql = """
+            SELECT id_aditamento, id_contrato, dt_aditamento, novo_valor, novo_dt_inicio, novo_dt_fim, observacoes
+            FROM aditamento WHERE id_aditamento = ?
+        """;
+
+        try (Connection conn = Conexao.conectar();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idAditamento);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                aditamento = new Aditamento(
+                    rs.getInt("id_aditamento"),
+                    rs.getInt("id_contrato"),
+                    rs.getDate("dt_aditamento"),
+                    rs.getBigDecimal("novo_valor"),
+                    rs.getDate("novo_dt_inicio"),
+                    rs.getDate("novo_dt_fim"),
+                    rs.getString("observacoes")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return aditamento;
+    }
+
 }

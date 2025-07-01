@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 public class GerenciarAditamentos {
     private JDialog dialog;
@@ -26,12 +27,44 @@ public class GerenciarAditamentos {
         model = new DefaultTableModel(colunas, 0);
         tabela = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(tabela);
+        TableColumnModel columnModel = tabela.getColumnModel();
+        columnModel.removeColumn(columnModel.getColumn(0));
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         JButton btnNovo = new JButton("Novo Aditamento");
         JButton btnAlterar = new JButton("Alterar Aditamento");
         JButton btnExcluir = new JButton("Excluir Aditamento");
+
+        btnNovo.addActionListener(e -> {
+            new AditamentoForm(dialog, "inserir", null, idContrato);
+            carregarDados();
+        });
+
+        btnAlterar.addActionListener(e -> {
+            int linha = tabela.getSelectedRow();
+            if (linha == -1) {
+                JOptionPane.showMessageDialog(dialog, "Selecione um aditamento.");
+                return;
+            }
+            int idAditamento = (int) model.getValueAt(linha, 0);
+            Aditamento selecionado = AditamentoDAO.buscarPorId(idAditamento);
+            new AditamentoForm(dialog, "alterar", selecionado, idContrato);
+            carregarDados();
+        });
+
+        btnExcluir.addActionListener(e -> {
+            int linha = tabela.getSelectedRow();
+            if (linha == -1) {
+                JOptionPane.showMessageDialog(dialog, "Selecione um aditamento.");
+                return;
+            }
+            int idAditamento = (int) model.getValueAt(linha, 0);
+            Aditamento selecionado = AditamentoDAO.buscarPorId(idAditamento);
+            new AditamentoForm(dialog, "excluir", selecionado, idContrato);
+            carregarDados();
+        });
+
 
         painelBotoes.add(btnNovo);
         painelBotoes.add(btnAlterar);

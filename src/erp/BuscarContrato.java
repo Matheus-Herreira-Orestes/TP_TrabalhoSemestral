@@ -90,6 +90,7 @@ public class BuscarContrato {
             Contrato contrato = tableModel.getContratoAt(linha);
             Window janelaPai = SwingUtilities.getWindowAncestor(tabela);
             new GerenciarAditamentos().mostrar(janelaPai, contrato.id);
+            carregarTodos();
         });
 
 
