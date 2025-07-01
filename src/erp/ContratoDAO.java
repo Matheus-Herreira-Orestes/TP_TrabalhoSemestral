@@ -12,11 +12,9 @@ import java.util.Map;
 
 public class ContratoDAO {
 
-    // Método para buscar todos os contratos
     public static List<Contrato> buscarTodos() {
         List<Contrato> contratos = new ArrayList<>();
 
-        // SQL base
         StringBuilder sql = new StringBuilder("""
             SELECT 
                 c.id_contrato, 
@@ -56,12 +54,9 @@ public class ContratoDAO {
         return contratos;
     }
 
-
-    // Método para buscar contratos filtrados
     public static List<Contrato> buscarPorFiltros(String empresa, Integer idContrato, String descricao, String dtInicio, String dtFim) {
         List<Contrato> contratos = new ArrayList<>();
 
-        // SQL base
         StringBuilder sql = new StringBuilder("""
             SELECT c.id_contrato, c.descricao, e.razao AS empresa, c.dt_inicio, 
                 COALESCE(a.novo_dt_fim, c.dt_fim) AS dt_fim,
@@ -80,7 +75,6 @@ public class ContratoDAO {
             parametros.add(Sessao.idUsuario);
         }
 
-        // Adicionar filtros adicionais
         if (empresa != null && !empresa.isBlank()) {
             sql.append(" AND e.razao ILIKE ?");
             parametros.add("%" + empresa + "%");
@@ -132,7 +126,6 @@ public class ContratoDAO {
         return contratos;
     }
 
-    // Método auxiliar para converter o ResultSet em um objeto Contrato
     private static Contrato contratoFromResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id_contrato");
         String descricao = rs.getString("descricao");
@@ -154,7 +147,6 @@ public class ContratoDAO {
         grupos.put("proximo", new ArrayList<>());
         grupos.put("futuro", new ArrayList<>());
 
-        // Início da SQL base
         String sql = """
             SELECT 
                 c.id_contrato,

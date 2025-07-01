@@ -80,7 +80,7 @@ public class LoginPage {
             String senha = new String(passwordText.getPassword());
 
             if (validarLogin(usuario, senha)) {
-                frame.dispose(); // fecha a tela de login
+                frame.dispose();
                 new LandingPage().mostrar();
             } else {
                 JOptionPane.showMessageDialog(frame, "Login ou senha inválidos");

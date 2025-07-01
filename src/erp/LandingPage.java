@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 
-// PLACEHOLDER DA LANDING PAGe
 public class LandingPage {
    private boolean isAdmin = Sessao.isAdmin;
    JPanel colunasPanel;
@@ -38,16 +37,14 @@ public class LandingPage {
         if (isAdmin) {
             JButton btnUsuarios = new JButton("Gerenciar Usuários");
             btnUsuarios.addActionListener(e -> {
-                frame.dispose(); // fecha a tela atual
-                new GerenciarUsuario().mostrar();
+                new GerenciarUsuarioEmpresa("usuario").mostrar();
             });
             botoesPanel.add(btnUsuarios);
         }
 
         JButton btnEmpresas = new JButton("Gerenciar Empresas");
         btnEmpresas.addActionListener(e -> {
-            frame.dispose();
-            new TelaGerenciamento().mostrar("Empresas");
+            new GerenciarUsuarioEmpresa("empresa").mostrar();
         });
         botoesPanel.add(btnEmpresas);
 

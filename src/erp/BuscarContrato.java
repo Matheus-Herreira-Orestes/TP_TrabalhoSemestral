@@ -57,7 +57,7 @@ public class BuscarContrato {
         painelPrincipal.add(painelFiltros, BorderLayout.NORTH);
 
         // Tabela
-        tableModel = new ContratoTableModel(List.of()); // Lista vazia inicialmente
+        tableModel = new ContratoTableModel(List.of());
         tabela = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(tabela);
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);

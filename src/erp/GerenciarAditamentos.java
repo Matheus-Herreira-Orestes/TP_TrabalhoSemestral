@@ -94,7 +94,7 @@ public class GerenciarAditamentos {
     }
 
     private void carregarDados() {
-        model.setRowCount(0); // limpa a tabela
+        model.setRowCount(0);
         List<Aditamento> aditamentos = AditamentoDAO.buscarADTPorContrato(idContrato);
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");

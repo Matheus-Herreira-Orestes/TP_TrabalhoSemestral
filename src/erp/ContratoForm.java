@@ -17,7 +17,7 @@ public class ContratoForm {
     private JTextArea txtDescricao;
     private String modo; // "inserir", "alterar", "excluir", "detalhar"
     private Contrato contratoSelecionado;
-    private JComboBox<Usuario> cbFiscal; // apenas se admin
+    private JComboBox<Usuario> cbFiscal;
 
     public ContratoForm(JFrame parent, String modo, Contrato contratoSelecionado) {
         this.modo = modo.toLowerCase();
@@ -46,7 +46,6 @@ public class ContratoForm {
 
         gbc.gridwidth = 1;
 
-        // Empresa (JComboBox)
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Empresa:"), gbc);
@@ -60,7 +59,6 @@ public class ContratoForm {
 
         gbc.gridwidth = 1;
 
-        // Combo box de seleção de fiscal se for admin
         if (Sessao.isAdmin) {
             gbc.gridx = 0;
             gbc.gridy = linha++;
@@ -75,8 +73,6 @@ public class ContratoForm {
             gbc.gridwidth = 1;
         }
 
-
-        // ID Contrato
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Id do contrato:"), gbc);
@@ -87,7 +83,6 @@ public class ContratoForm {
         gbc.gridy = linha;
         panel.add(txtIdContrato, gbc);
 
-        // Valor Total
         gbc.gridx = 2;
         gbc.gridy = linha;
         panel.add(new JLabel("Valor Total:"), gbc);
@@ -97,7 +92,6 @@ public class ContratoForm {
         gbc.gridy = linha++;
         panel.add(txtValor, gbc);
 
-        // Data Início
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Data início:"), gbc);
@@ -107,7 +101,6 @@ public class ContratoForm {
         gbc.gridy = linha;
         panel.add(txtDtInicio, gbc);
 
-        // Data Fim
         gbc.gridx = 2;
         gbc.gridy = linha;
         panel.add(new JLabel("Data fim:"), gbc);
@@ -117,7 +110,6 @@ public class ContratoForm {
         gbc.gridy = linha++;
         panel.add(txtDtFim, gbc);
 
-        // Descrição
         gbc.gridx = 0;
         gbc.gridy = linha++;
         panel.add(new JLabel("Descrição:"), gbc);
@@ -134,7 +126,6 @@ public class ContratoForm {
         gbc.weighty = 1.0;
         panel.add(scrollDescricao, gbc);
 
-        // Botões
         gbc.gridy = linha;
         gbc.gridwidth = 4;
         gbc.weighty = 0;
@@ -241,7 +232,7 @@ public class ContratoForm {
                                 JOptionPane.showMessageDialog(dialog, "Selecione um fiscal válido.");
                                 return;
                             }
-                            stmt.setInt(6, usuarioSelecionado.getId()); // fiscal
+                            stmt.setInt(6, usuarioSelecionado.getId());
                             stmt.setInt(7, idContrato);
                         } else {
                             stmt.setInt(6, idContrato);
@@ -267,7 +258,6 @@ public class ContratoForm {
                     }
                 }
                 case "detalhar" -> {
-                    // Nenhuma ação necessária, a tela já está preenchida e campos estão desabilitados
                     dialog.dispose();
                 }
                 default -> {
@@ -288,16 +278,14 @@ public class ContratoForm {
 
     private JFormattedTextField criarCampoDataFormatado() {
         try {
-            // Máscara "dd/MM/yyyy" (com placeholders)
             MaskFormatter mask = new MaskFormatter("##/##/####");
-            mask.setPlaceholderCharacter('_');  // Exibe "_" nos dígitos vazios
-            mask.setValidCharacters("0123456789"); // Aceita apenas números
+            mask.setPlaceholderCharacter('_');
+            mask.setValidCharacters("0123456789");
             
             JFormattedTextField campo = new JFormattedTextField(mask);
-            campo.setColumns(10); // Tamanho do campo
-            campo.setToolTipText("dd/MM/yyyy"); // Dica de formato
+            campo.setColumns(10);
+            campo.setToolTipText("dd/MM/yyyy");
             
-            // Validação ao perder o foco
             campo.addFocusListener(new FocusAdapter() {
                 @Override
                 public void focusLost(FocusEvent e) {
@@ -308,26 +296,25 @@ public class ContratoForm {
             return campo;
         } catch (ParseException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao criar máscara de data");
-            return new JFormattedTextField(); // Fallback sem formatação
+            return new JFormattedTextField();
         }
     }
 
     private void validarData(JFormattedTextField campo) {
         String texto = campo.getText().replace("_", "").trim();
-        if (!texto.isEmpty() && texto.length() == 10) { // Data completa?
+        if (!texto.isEmpty() && texto.length() == 10) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                sdf.setLenient(false); // Rejeita datas inválidas (ex: 31/02/2023)
-                java.util.Date data = sdf.parse(texto); // Tenta converter
+                sdf.setLenient(false);
+                java.util.Date data = sdf.parse(texto);
                 
-                // Opcional: Mostrar a data formatada corretamente
                 campo.setValue(sdf.format(data));
             } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(campo, 
                     "Data inválida!\nUse o formato dd/MM/yyyy", 
                     "Erro", 
                     JOptionPane.ERROR_MESSAGE);
-                campo.requestFocus(); // Volta o foco para correção
+                campo.requestFocus();
             }
         }
     }
@@ -335,7 +322,7 @@ public class ContratoForm {
     private void preencherCamposComContrato() {
         txtIdContrato.setText(String.valueOf(contratoSelecionado.id));
         txtDescricao.setText(contratoSelecionado.descricao);
-        txtValor.setText(""); // Adicione esse valor no modelo se quiser usá-lo
+        txtValor.setText("");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         txtDtInicio.setText(sdf.format(contratoSelecionado.dtInicio));
