@@ -54,8 +54,6 @@ public class AditamentoForm {
             txtIdAditamento.setEnabled(false);
         }
 
-
-        // Novo Valor
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Novo Valor:"), gbc);
@@ -65,7 +63,6 @@ public class AditamentoForm {
         panel.add(txtNovoValor, gbc);
         linha++;
 
-        // Nova Data Início
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Nova Data Início:"), gbc);
@@ -75,7 +72,6 @@ public class AditamentoForm {
         panel.add(txtNovaDtInicio, gbc);
         linha++;
 
-        // Nova Data Fim
         gbc.gridx = 0;
         gbc.gridy = linha;
         panel.add(new JLabel("Nova Data Fim:"), gbc);
@@ -85,7 +81,6 @@ public class AditamentoForm {
         panel.add(txtNovaDtFim, gbc);
         linha++;
 
-        // Observação
         gbc.gridx = 0;
         gbc.gridy = linha;
         gbc.anchor = GridBagConstraints.NORTH;
@@ -99,7 +94,6 @@ public class AditamentoForm {
         panel.add(scrollObs, gbc);
         linha++;
 
-        // Botões
         gbc.gridy = linha++;
         gbc.gridx = 0;
         gbc.gridwidth = 2;

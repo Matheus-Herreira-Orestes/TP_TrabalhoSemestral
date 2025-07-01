@@ -34,12 +34,13 @@ public class ContratoTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Contrato c = dados.get(rowIndex);
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
         return switch (columnIndex) {
             case 0 -> c.id;
             case 1 -> c.descricao;
             case 2 -> c.empresa;
-            case 3 -> c.dtInicio;
-            case 4 -> c.dtFim;
+            case 3 -> c.dtInicio != null ? sdf.format(c.dtInicio) : "";
+            case 4 -> c.dtFim != null ? sdf.format(c.dtFim) : "";
             default -> null;
         };
     }

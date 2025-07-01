@@ -76,10 +76,12 @@ public class LandingPage {
 
         for (int i = 0; i < contratos.size(); i++) {
             Contrato c = contratos.get(i);
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
             dados[i][0] = String.valueOf(c.id);
             dados[i][1] = c.descricao;
-            dados[i][2] = c.dtFim.toString();
+            dados[i][2] = c.dtFim != null ? sdf.format(c.dtFim) : "";
         }
+
 
         JTable tabela = new JTable(dados, colunas);
         tabela.getColumnModel().getColumn(0).setPreferredWidth(40);

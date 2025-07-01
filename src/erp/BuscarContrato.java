@@ -23,7 +23,6 @@ public class BuscarContrato {
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Filtros
         JPanel painelFiltros = new JPanel(new GridLayout(3, 4, 10, 10));
 
         tfEmpresa = new JTextField();
@@ -56,13 +55,11 @@ public class BuscarContrato {
 
         painelPrincipal.add(painelFiltros, BorderLayout.NORTH);
 
-        // Tabela
         tableModel = new ContratoTableModel(List.of());
         tabela = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(tabela);
         painelPrincipal.add(scrollPane, BorderLayout.CENTER);
 
-        // Botões CRUD
         JPanel botoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnVoltar = new JButton("Voltar");
         botoesPanel.add(btnVoltar);
