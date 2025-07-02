@@ -3,6 +3,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class LandingPage {
    private boolean isAdmin = Sessao.isAdmin;
@@ -82,13 +83,47 @@ public class LandingPage {
             dados[i][2] = c.dtFim != null ? sdf.format(c.dtFim) : "";
         }
 
-
         JTable tabela = new JTable(dados, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
+        tabela.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                try {
+                    if (value != null && value instanceof String && !((String) value).isBlank()) {
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                        java.util.Date dataFim = sdf.parse((String) value);
+                        java.util.Date hoje = new java.util.Date();
+
+                        long diffMillis = dataFim.getTime() - hoje.getTime();
+                        long diffDias = diffMillis / (1000 * 60 * 60 * 24);
+                        long diffMeses = diffDias / 30;
+
+                        if (diffMeses <= 3) {
+                            c.setForeground(Color.RED);
+                        } else if (diffMeses <= 6) {
+                            c.setForeground(Color.ORANGE);
+                        } else {
+                            c.setForeground(Color.BLACK);
+                        }
+                    } else {
+                        c.setForeground(Color.BLACK);
+                    }
+                } catch (Exception e) {
+                    c.setForeground(Color.BLACK);
+                }
+
+                return c;
+            }
+        });
+
         tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
         tabela.getColumnModel().getColumn(1).setPreferredWidth(200);
         tabela.getColumnModel().getColumn(2).setPreferredWidth(100);

@@ -114,8 +114,15 @@ public class UsuarioDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro ao excluir usuário: " + e.getMessage());
+            if ("23503".equals(e.getSQLState())) {
+                JOptionPane.showMessageDialog(null,
+                    "Não é possível excluir o usuário, pois ele está vinculado a um contrato.",
+                    "Erro de Integridade Referencial",
+                    JOptionPane.ERROR_MESSAGE);
+            } else {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Erro ao excluir usuário: " + e.getMessage());
+            }
         }
     }
 
